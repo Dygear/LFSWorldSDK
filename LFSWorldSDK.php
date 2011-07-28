@@ -20,7 +20,7 @@ $SDK = new LFSWorldSDK('35cP2S05Cvj3z7564aXKyw0Mqf1Hhx7P', TRUE);
 **            Mark 'Dygear' Tomlin, Mikael 'filur' Forsberg,
 **            Victor van Vlaardingen, Jeff 'glyphon' DeLamater,
 **            AndroidXP and Dr. Timo 'HorsePower' Bergmann.
-** @version   1.9.5 Alpha 1
+** @version   1.9.6
 */
 
 # Extra Resources:
@@ -37,15 +37,19 @@ class LFSWorldSDK {
 	}
 	// Core Functions.
 	function fetch_data($url) {
-		if ((($data = @file_get_contents($url)) === FALSE) && function_exists('curl_init')) {
+		if (function_exists('curl_init')) {
 			$cURL = curl_init();
 			curl_setopt($cURL, CURLOPT_URL,$url);
 			curl_setopt($cURL, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 5);
 			$data = curl_exec($cURL);
 			curl_close($cURL);
-		} else
-			trigger_error('Your server\'s configuration is not supported by this version of LFSWorldSDK.', E_WARNING);
+			return $data;
+		}
+		else if (function_exists('file_get_contents'))
+			$data = @file_get_contents($url);
+		else
+			trigger_error('Your server\'s configuration is not supported by this version of LFSWorldSDK.', E_USER_WARNING);
 		return $data;
 	}
 	function make_query($qryStr) {
@@ -54,7 +58,7 @@ class LFSWorldSDK {
 			$this->time = time();
 			$this->fpass = FALSE;
 		}
-		$data = $this->fetch_data("http://www.lfsworld.net/pubstat/get_stat2.php?version=1.4&idk={$this->idk}&ps={$this->ps}&c={$this->compression}&s=2{$qryStr}");
+		$data = $this->fetch_data("http://www.lfsworld.net/pubstat/get_stat2.php?version=1.5&idk={$this->idk}&ps={$this->ps}&c={$this->compression}&s=2{$qryStr}");
 		if ($this->compression)
 			$data = gzinflate($data);
 		if ($this->is_lfsw_error($data))
@@ -89,7 +93,7 @@ class LFSWorldSDK {
 	}
 	// Helper Fuctions.
 	function convert_lfsw_time($time) {
-		return sprintf('%d:%06.3f', floor($time / 60000), (($time % 60000) / 1000));
+		return sprintf('%d:%06.3F', floor($time / 60000), (($time % 60000) / 1000));
 	}
 	function convert_lfs_text($str, $mkHref = FALSE, $codePage = 'L', $toCodePage = 'UTF-8') {
 		$colors = array('^0','^1','^2','^3','^4','^5','^6','^7','^8','^9');
@@ -307,6 +311,14 @@ class LFSWorldSDK {
 		return $data;
 	}
 	// LFSWorld Functions
+	function get_counters($type) {
+		if (is_array($type)) {
+			foreach($type as $type)
+				$result[$type] = $this->get_counters($type);
+		} else
+			$result = $this->make_query('&action=counters&type='.urlencode($type));
+		return $result;
+	}
 	function get_hl($racer) {
 		if (is_array($racer)) {
 			foreach($racer as $uname)

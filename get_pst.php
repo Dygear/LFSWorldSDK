@@ -56,7 +56,7 @@
 					<th>Online status</th>
 					<td><?php
 						switch ($val) {
-							case 0:	echo 'Offline'; break;
+							case 0: echo 'Offline'; break;
 							case 1: echo 'Spectating'; break;
 							case 2: echo 'In pits'; break;
 							case 3: echo 'In race'; break;
