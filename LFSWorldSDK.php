@@ -89,7 +89,7 @@ class LFSWorldSDK {
 	}
 	// Helper Fuctions.
 	function convert_lfsw_time($time) {
-		return sprintf('%d:%2.2f', floor($time / 60000), (($time % 60000) / 1000));
+		return sprintf('%d:%06.3f', floor($time / 60000), (($time % 60000) / 1000));
 	}
 	function convert_lfs_text($str, $mkHref = FALSE, $codePage = 'L', $toCodePage = 'UTF-8') {
 		$colors = array('^0','^1','^2','^3','^4','^5','^6','^7','^8','^9');
@@ -103,8 +103,8 @@ class LFSWorldSDK {
 			'<span style="color: #F0F;">',	# ^5
 			'<span style="color: #0FF;">',	# ^6
 			'<span style="color: #FFF;">',	# ^7
-			'<span style="color: INHERIT;">',#^8
-			'<span style="color: INHERIT;">'# ^9
+			'<span style="color: INHERIT;">',	#^8
+			'<span style="color: INHERIT;">'	# ^9
 		);
 		$str = str_replace($colors, $clrHTML, $str, $count);
 		if ($count) {
@@ -113,16 +113,16 @@ class LFSWorldSDK {
 		}
 		# Parse Code Pages
 		$sets = array (
-			'L' => 'CP1252', # Latin 1
-			'E' => 'ISO-8859-2', # Central Europe
-			'T' => 'ISO-8859-9', # Turkish
-			'B' => 'ISO-8859-13', # Baltic
-			'J' => 'SJIS-win', # Japanese
-			'G' => 'ISO-8859-7', # Greek
-			'C' => 'CP1251', # Cyrillic
-			'H' => 'CP950', # Traditional Chinese
-			'S' => 'CP936', # Simplified Chinese
-			'K' => 'CP949', # Korean
+			'L' => 'CP1252',		# Latin 1
+			'E' => 'ISO-8859-2',	# Central Europe
+			'T' => 'ISO-8859-9',	# Turkish
+			'B' => 'ISO-8859-13',	# Baltic
+			'J' => 'SJIS-win',		# Japanese
+			'G' => 'ISO-8859-7',	# Greek
+			'C' => 'CP1251',		# Cyrillic
+			'H' => 'CP950',		# Traditional Chinese
+			'S' => 'CP936',		# Simplified Chinese
+			'K' => 'CP949'			# Korean
 		);
 		$newstr = $tmp = '';
 		for ($i = 0, $len = strlen($str); $i < $len; $i++) {
@@ -234,9 +234,9 @@ class LFSWorldSDK {
 			if ($flags_hlaps & 64)		$data[64] = 'BRAKEHELP';
 			if ($flags_hlaps & 128)		$data[128] = 'THROTTLEHELP';
 			if ($flags_hlaps & 512)		$data[512] = 'AUTOCLUTCH'; 
-			if ($flags_hlaps & 1024)	$data[1024] = 'MOUSESTEER';
-			if ($flags_hlaps & 2048)	$data[2048] = 'KN';
-			if ($flags_hlaps & 4096)	$data[4096] = 'KS';
+			if ($flags_hlaps & 1024)		$data[1024] = 'MOUSESTEER';
+			if ($flags_hlaps & 2048)		$data[2048] = 'KN';
+			if ($flags_hlaps & 4096)		$data[4096] = 'KS';
 			if (!($flags_hlaps & 7168))	$data[7168] = 'WHEEL';
 		} else {
 			$data = '';
@@ -248,9 +248,9 @@ class LFSWorldSDK {
 			if ($flags_hlaps & 64)		$data .= 'bh&nbsp;';
 			if ($flags_hlaps & 128)		$data .= 'cl&nbsp;';
 			if ($flags_hlaps & 512)		$data .= 'ac&nbsp;'; 
-			if ($flags_hlaps & 1024)	$data .= 'M&nbsp;';
-			if ($flags_hlaps & 2048)	$data .= 'Kn&nbsp;';
-			if ($flags_hlaps & 4096)	$data .= 'Ks&nbsp;';
+			if ($flags_hlaps & 1024)		$data .= 'M&nbsp;';
+			if ($flags_hlaps & 2048)		$data .= 'Kn&nbsp;';
+			if ($flags_hlaps & 4096)		$data .= 'Ks&nbsp;';
 			if (!($flags_hlaps & 7168))	$data .= 'W&nbsp;';
 		}
 		return $data;
@@ -261,11 +261,11 @@ class LFSWorldSDK {
 		if ($bits & 2)		$data[2]		= 'drift';
 		if ($bits & 4)		$data[4]		= 'drag';
 		if ($bits & 8)		$data[8]		= 'can apply';
-		if ($bits & 16)		$data[16]		= 'has host';
-		if ($bits & 32)		$data[32]		= 'Demo';
-		if ($bits & 64)		$data[64]		= 'S1';
-		if ($bits & 128)	$data[128]		= 'S2';
-		if ($bits & 256)	$data[256]		= 'S3';
+		if ($bits & 16)	$data[16]		= 'has host';
+		if ($bits & 32)	$data[32]		= 'Demo';
+		if ($bits & 64)	$data[64]		= 'S1';
+		if ($bits & 128)	$data[128]	= 'S2';
+		if ($bits & 256)	$data[256]	= 'S3';
 		return $data;
 	}
 	function convert_car_bits($bits) {
@@ -274,16 +274,16 @@ class LFSWorldSDK {
 		if ($bits & 2)		$data[2]		= 'XRG';
 		if ($bits & 4)		$data[4]		= 'XRT';
 		if ($bits & 8)		$data[8]		= 'RB4';
-		if ($bits & 16)		$data[16]		= 'FXO';
-		if ($bits & 32)		$data[32]		= 'LX4';
-		if ($bits & 64)		$data[64]		= 'LX6';
-		if ($bits & 128)	$data[128]		= 'MRT';
-		if ($bits & 256)	$data[256]		= 'UF1';
-		if ($bits & 512)	$data[512]		= 'RAC';
-		if ($bits & 1024)	$data[1024]		= 'FZ5';
-		if ($bits & 2048)	$data[2048]		= 'FOX';
-		if ($bits & 4096)	$data[4096]		= 'XFR';
-		if ($bits & 8192)	$data[8192]		= 'UFR';
+		if ($bits & 16)	$data[16]		= 'FXO';
+		if ($bits & 32)	$data[32]		= 'LX4';
+		if ($bits & 64)	$data[64]		= 'LX6';
+		if ($bits & 128)	$data[128]	= 'MRT';
+		if ($bits & 256)	$data[256]	= 'UF1';
+		if ($bits & 512)	$data[512]	= 'RAC';
+		if ($bits & 1024)	$data[1024]	= 'FZ5';
+		if ($bits & 2048)	$data[2048]	= 'FOX';
+		if ($bits & 4096)	$data[4096]	= 'XFR';
+		if ($bits & 8192)	$data[8192]	= 'UFR';
 		if ($bits & 16384)	$data[16384]	= 'FO8';
 		if ($bits & 32768)	$data[32768]	= 'FXR';
 		if ($bits & 65536)	$data[65536]	= 'XRR';
@@ -299,11 +299,11 @@ class LFSWorldSDK {
 		if ($bits & 2)		$data[2]		= 'CAN_SELECT';
 		if ($bits & 4)		$data[4]		= 'QUALIFY';
 		if ($bits & 8)		$data[8]		= 'PRIVATE';
-		if ($bits & 16)		$data[16]		= 'MODIFIED';
-		if ($bits & 32)		$data[32]		= 'MIDRACEJOIN';
-		if ($bits & 64)		$data[64]		= 'MUSTPIT';
-		if ($bits & 128)	$data[128]		= 'CAN_RESET';
-		if ($bits & 256)	$data[256]		= 'FCV';
+		if ($bits & 16)	$data[16]		= 'MODIFIED';
+		if ($bits & 32)	$data[32]		= 'MIDRACEJOIN';
+		if ($bits & 64)	$data[64]		= 'MUSTPIT';
+		if ($bits & 128)	$data[128]	= 'CAN_RESET';
+		if ($bits & 256)	$data[256]	= 'FCV';
 		return $data;
 	}
 	// LFSWorld Functions
