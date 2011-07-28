@@ -6,7 +6,7 @@ $SDK = new LFSWorldSDK('35cP2S05Cvj3z7564aXKyw0Mqf1Hhx7P', TRUE);
 ** Live For Speed World SDK, easily find what you need from the World of Live For Speed.
 **
 ** @package   LFSWorldSDK
-** @since     2009-10-14 06:40
+** @since     2011-07-29 02:18
 ** @author    Mark 'Dygear' Tomlin
 ** @coauthor  Mikael 'filur' Forsberg.
 ** @coauthor  Victor van Vlaardingen.
@@ -16,11 +16,11 @@ $SDK = new LFSWorldSDK('35cP2S05Cvj3z7564aXKyw0Mqf1Hhx7P', TRUE);
 ** @coauthor  Becky Rose.
 ** @coauthor  'kanutron'.
 ** @license   MIT License (http://opensource.org/licenses/mit-license.php)
-** @copyright Copyright (C) 2006 - 2009,
+** @copyright Copyright (C) 2006 - 2011,
 **            Mark 'Dygear' Tomlin, Mikael 'filur' Forsberg,
 **            Victor van Vlaardingen, Jeff 'glyphon' DeLamater,
 **            AndroidXP and Dr. Timo 'HorsePower' Bergmann.
-** @version   1.9.6
+** @version   1.9.7
 */
 
 # Extra Resources:
@@ -311,6 +311,28 @@ class LFSWorldSDK {
 		return $data;
 	}
 	// LFSWorld Functions
+	function get_ch($track, $car, $control = null, $country = null) {
+		if (is_array($track) || is_array($car)) {
+			if (is_array($track) && is_array($car)) {
+				foreach($track as $tname) {
+					foreach ($car as $cname)
+						$result[$tname][$cname] = $this->get_ch($tname, $cname, $control, $country);
+				}
+			} else if (is_array($track)) {
+				foreach($track as $tname)
+					$result[$tname] = $this->get_ch($tname, $cname, $control, $country);
+			} else if (is_array($car)) {
+				foreach ($car as $cname)
+					$result[$cname] = $this->get_ch($tname, $cname, $control, $country);
+			}
+		} else {
+			if (($result = $this->make_query("&action=ch&track={$track}&car={$car}&control={$control}&country={$country}")) !== FALSE) {
+				foreach ($result as $i => $data)
+					$result[$i]['flags_hlaps'] = $this->convert_flags_hlaps($data);
+			}
+		}
+		return $result;
+	}
 	function get_counters($type) {
 		if (is_array($type)) {
 			foreach($type as $type)
@@ -318,6 +340,13 @@ class LFSWorldSDK {
 		} else
 			$result = $this->make_query('&action=counters&type='.urlencode($type));
 		return $result;
+	}
+	function get_fuel($racer) {
+		if (is_array($racer)) {
+			foreach($racer as $uname)
+				$result[$uname] = $this->get_fuel($uname);
+		} else 
+			return $this->make_query('&action=fuel&racer='.urlencode($racer));
 	}
 	function get_hl($racer) {
 		if (is_array($racer)) {
@@ -333,56 +362,10 @@ class LFSWorldSDK {
 		}
 		return $result;
 	}
-	function get_ch($track, $car, $control = null) {
-		if (is_array($track) || is_array($car)) {
-			if (is_array($track) && is_array($car)) {
-				foreach($track as $tname) {
-					foreach ($car as $cname)
-						$result[$tname][$cname] = $this->get_ch($tname, $cname, $control);
-				}
-			} else if (is_array($track)) {
-				foreach($track as $tname)
-					$result[$tname] = $this->get_ch($tname, $cname, $control);
-			} else if (is_array($car)) {
-				foreach ($car as $cname)
-					$result[$cname] = $this->get_ch($tname, $cname, $control);
-			}
-		} else {
-			if (($result = $this->make_query("&action=ch&track={$track}&car={$car}&control={$control}")) !== FALSE) {
-				foreach ($result as $i => $data)
-					$result[$i]['flags_hlaps'] = $this->convert_flags_hlaps($data);
-			}
-		}
-		return $result;
-	}
-	function get_wr() {
-		if (($result = $this->make_query("&action=wr")) !== FALSE) {
-			foreach ($result as $i => $data)
-				$result[$i]['flags_hlaps'] = $this->convert_flags_hlaps($data);
-		}
-		return $result;
-	}
-	function get_pb($racer) {
-		if (is_array($racer)) {
-			foreach($racer as $uname)
-				$result[$uname] = $this->get_pb($uname);
-		} else
-			$result = $this->make_query('&action=pb&racer='.urlencode($racer));
-		return $result;
-	}
-	function get_fuel($racer) {
-		if (is_array($racer)) {
-			foreach($racer as $uname)
-				$result[$uname] = $this->get_fuel($uname);
-		} else 
-			return $this->make_query('&action=fuel&racer='.urlencode($racer));
-	}
-	function get_pst($racer) {
-		if (is_array($racer)) {
-			foreach($racer as $uname)
-				$result[$uname] = $this->get_pst($uname);
-		} else
-			$result = $this->make_query('&action=pst&racer='.urlencode($racer));
+	function get_hl_log($log_filter = 4, $lines = 150, $control = null, $starttime = 0) {
+		$result = $this->make_query("&action=hl_log&log_filter={$log_filter}&lines={$lines}&control={$control}&starttime={$starttime}");
+		foreach ($result as $i => $data)
+			$result[$i]['flags_hlaps'] = $this->convert_flags_hlaps($data);
 		return $result;
 	}
 	function get_hosts() {
@@ -395,18 +378,12 @@ class LFSWorldSDK {
 		}
 		return $result;
 	}
-	function get_teams() {
-		$result = $this->make_query('&action=teams');
-		foreach ($result as $i => $data) {
-			$result[$i]['info'] = urldecode($data['info']);
-			$result[$i]['bits'] = $this->convert_team_bits($data['bits']);
-		}
-		return $result;
-	}
-	function get_hl_log($log_filter = 4, $lines = 150, $control = null, $starttime = 0) {
-		$result = $this->make_query("&action=hl_log&log_filter={$log_filter}&lines={$lines}&control={$control}&starttime={$starttime}");
-		foreach ($result as $i => $data)
-			$result[$i]['flags_hlaps'] = $this->convert_flags_hlaps($data);
+	function get_pb($racer) {
+		if (is_array($racer)) {
+			foreach($racer as $uname)
+				$result[$uname] = $this->get_pb($uname);
+		} else
+			$result = $this->make_query('&action=pb&racer='.urlencode($racer));
 		return $result;
 	}
 	function get_progress($host) {
@@ -418,6 +395,44 @@ class LFSWorldSDK {
 		} else
 			$return = json_decode(array_pop(explode("\n", $this->fetch_data('http://www.lfsworld.net/pubstat/hostprogress.php?host='.urlencode($host)))), TRUE);
 		return $return;
+	}
+	function get_pst($racer) {
+		if (is_array($racer)) {
+			foreach($racer as $uname)
+				$result[$uname] = $this->get_pst($uname);
+		} else
+			$result = $this->make_query('&action=pst&racer='.urlencode($racer));
+		return $result;
+	}
+	function get_teams() {
+		$result = $this->make_query('&action=teams');
+		foreach ($result as $i => $data) {
+			$result[$i]['info'] = urldecode($data['info']);
+			$result[$i]['bits'] = $this->convert_team_bits($data['bits']);
+		}
+		return $result;
+	}
+	function get_wr($track = null, $car = null) {
+		if (is_array($track) || is_array($car)) {
+			if (is_array($track) && is_array($car)) {
+				foreach($track as $tname) {
+					foreach ($car as $cname)
+						$result[$tname][$cname] = $this->get_wr($tname, $cname);
+				}
+			} else if (is_array($track)) {
+				foreach($track as $tname)
+					$result[$tname] = $this->get_wr($tname, $cname);
+			} else if (is_array($car)) {
+				foreach ($car as $cname)
+					$result[$cname] = $this->get_wr($tname, $cname);
+			}
+		} else {
+			if (($result = $this->make_query("&action=wr&track={$track}&car={$car}")) !== FALSE) {
+				foreach ($result as $i => $data)
+					$result[$i]['flags_hlaps'] = $this->convert_flags_hlaps($data);
+			}
+		}
+		return $result;
 	}
 }
 

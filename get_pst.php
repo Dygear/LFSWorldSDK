@@ -1,6 +1,11 @@
-<?php include('lfsworldsdk.php'); ?>
+<?php
+	header('Content-Type: text/html; charset=UTF-8;');
+	include('lfsworldsdk.php');
+?>
+<!DOCTYPE html>
 <html>
 	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title><?php echo (empty($_GET['racer'])) ? 'Please Input a Racer\'s Name' : 'Page for ' . urlencode($_GET['racer']); ?></title>
 	</head>
 	<body>
